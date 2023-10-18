@@ -118,6 +118,56 @@ app.post('/favorites', async (req, res) => {
     }
 });
 
+app.get('/favorites', async (req, res) => {
+    try {
+        const favorites = await Favorite.find({});
+        res.status(200).send(favorites);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
+
+app.get('/favorites/:id', async (req, res) => {
+    try {
+        const favorite = await Favorite.findById(req.params.id);
+        if (!favorite) {
+            return res.status(404).send();
+        }
+        res.status(200).send(favorite);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
+app.put('/favorites/:id', async (req, res) => {
+    try {
+        console.log('favortie exists!');
+        const favorite = await Favorite.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+        if (!favorite) {
+            return res.status(404).send();
+        }
+        res.status(200).send(favorite);
+    } catch (error) {
+        res.status(400).send(error);
+    }
+});
+
+
+app.delete('/favorites/:id', async (req, res) => {
+    try {
+        const favorite = await Favorite.findByIdAndDelete(req.params.id);
+        if (!favorite) {
+            return res.status(404).send();
+        }
+        res.status(200).send(favorite);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
+
+
 // process.on('exit', () => {
 //     db.close((err) => {
 //         if (err) {
