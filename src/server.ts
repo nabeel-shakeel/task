@@ -1,18 +1,40 @@
 import axios from 'axios';
 import session, { Session } from 'express-session';
-
+import dotenv from 'dotenv';
 import express from 'express';
+import mongoose from 'mongoose';
+import config from '../config/config';
+import { Favorite } from '../models/favorites';
+
+import { db } from '../database';
 
 const app = express();
-const PORT = 3000;
+const PORT = config.server.port;
 
 app.get('/', (req, res) => {
     res.send('Hello, GitHub Repo Explorer!');
 });
 
-app.listen(PORT, () => {
-    console.log(`Server is running at http://localhost:${PORT}`);
-});
+// app.listen(PORT, () => {
+//     console.log(`Server is running at http://localhost:${PORT}`);
+// });
+
+dotenv.config();
+
+mongoose
+  .connect(config.mongo.url, { retryWrites: true, w: 'majority' })
+    .then(() => {
+        console.log('Connected to mongoDB.');
+        app.listen(PORT, () => {
+            console.log(`Server is running at::: http://localhost:${PORT}`);
+        });
+      console.log(`Running on ENV = ${process.env.NODE_ENV}`);
+      
+    })
+    .catch((error) => {
+        console.log('Unable to connect.');
+        console.log(error);
+    });
 
 app.use(
     session({
@@ -27,9 +49,12 @@ app.use(
   }
 
 
-const GITHUB_CLIENT_ID = 'd839c0529ad2fa9b118e';
-const GITHUB_CLIENT_SECRET = 'efe1419fbd141f9e91a14a8e35eb4ee60a51866e';
-const REDIRECT_URI = 'http://localhost:3000/auth/github/callback';
+// const GITHUB_CLIENT_ID = 'd839c0529ad2fa9b118e';
+// const GITHUB_CLIENT_SECRET = 'efe1419fbd141f9e91a14a8e35eb4ee60a51866e';
+// const REDIRECT_URI = 'http://localhost:3000/auth/github/callback';
+
+const GITHUB_CLIENT_ID = process.env.CLIENT_ID;
+const GITHUB_CLIENT_SECRET = process.env.CLIENT_SECRET;
 
 app.get('/auth/github', (req, res) => {
     res.redirect(`https://github.com/login/oauth/authorize?client_id=${GITHUB_CLIENT_ID}`);
@@ -80,7 +105,27 @@ app.get('/search', async (req, res) => {
     }
 });
 
+app.use(express.json());
 
+app.post('/favorites', async (req, res) => {
+    try {
+        console.log('favortie exists!');
+        const favorite = new Favorite(req.body);
+        await favorite.save();
+        res.status(201).send(favorite);
+    } catch (error) {
+        res.status(400).send(error);
+    }
+});
+
+// process.on('exit', () => {
+//     db.close((err) => {
+//         if (err) {
+//             return console.error(err.message);
+//         }
+//         console.log('Closed the SQLite database.');
+//     });
+// });
 
 /*
 

@@ -4,6 +4,8 @@ node_modules/
 # Build artifacts
 dist/
 
+.vscode/
+
 # Database
 my-database.db
 

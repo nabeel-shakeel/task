@@ -8,6 +8,6 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts", "src/types.d.ts"],
+  "include": ["src/**/*.ts", "src/types.d.ts", "config/config.ts", "database.ts"],
   "exclude": ["node_modules"]
 }
